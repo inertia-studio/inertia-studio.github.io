@@ -81,7 +81,7 @@ export function HomePage() {
                     <span className="text-[11px] font-medium" style={{ color: 'var(--d-text-3)' }}>Terminal</span>
                 </div>
                 <pre className="px-5 py-4 text-[13px] leading-relaxed" style={{ background: 'var(--d-code-bg)', color: 'var(--d-code-text)' }}>
-                    <span style={{ color: '#737373' }}>$</span> composer require inertia-studio/laravel{'\n'}
+                    <span style={{ color: '#737373' }}>$</span> composer require inertia-studio/laravel-adapter{'\n'}
                     <span style={{ color: '#737373' }}>$</span> npm install @inertia-studio/ui{'\n'}
                     <span style={{ color: '#737373' }}>$</span> php artisan studio:install
                 </pre>

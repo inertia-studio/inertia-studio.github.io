@@ -18,7 +18,7 @@ Get Inertia Studio running in your Laravel + Inertia application.
 ## Install the packages
 
 ```bash
-composer require inertia-studio/laravel
+composer require inertia-studio/laravel-adapter
 ```
 
 Install the frontend package — the same `@inertia-studio/ui` package works with all three frameworks:
@@ -55,7 +55,7 @@ Add the Studio source paths to your `resources/css/app.css`:
 
 ```css
 @import 'tailwindcss';
-@source '../../vendor/inertia-studio/laravel';
+@source '../../vendor/inertia-studio/laravel-adapter';
 @source '../../node_modules/@inertia-studio/ui';
 ```
 
