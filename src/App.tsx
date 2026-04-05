@@ -60,7 +60,7 @@ export default function App() {
     }, []);
 
     return (
-        <BrowserRouter basename="/docs">
+        <BrowserRouter>
             <Routes>
                 <Route path="/*" element={<Layout />} />
             </Routes>
