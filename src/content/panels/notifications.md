@@ -186,6 +186,33 @@ public function notifications(mixed $user): array
 }
 ```
 
+## Polling for Updates
+
+By default, notifications only refresh on page navigation. To check for new notifications periodically, enable polling on your Panel:
+
+```php
+class Admin extends Panel
+{
+    // Check for new notifications every 30 seconds
+    protected int $notificationPolling = 30;
+
+    // Show a toast when new notifications arrive (default: true)
+    protected bool $notificationToasts = true;
+}
+```
+
+When polling is enabled, Inertia's `usePoll` makes a partial reload of just the `studio` prop at the configured interval. This is lightweight — only the notification data is refreshed, not the entire page.
+
+### How it detects new notifications
+
+The frontend tracks the notification count between polls. When the count increases, it shows a toast for the latest notification. The toast type matches the notification color (`success`, `warning`, `danger`, `info`).
+
+Set `$notificationToasts = false` to disable toasts while keeping the polling (the badge count still updates silently).
+
+### Polling vs Broadcasting
+
+Polling is the simplest approach and works without any infrastructure. For truly real-time notifications (< 1 second latency), use Laravel Echo with WebSockets and push new notifications client-side. The polling approach is sufficient for most admin panels where a 10-30 second delay is acceptable.
+
 ## UI Behavior
 
 - The bell icon appears in the topbar between the theme toggle and the user menu
@@ -194,3 +221,4 @@ public function notifications(mixed $user): array
 - Clicking a notification with a `url` navigates to that page
 - Empty state shows "No notifications" when the array is empty
 - Notifications are loaded as a lazy Inertia prop — no performance impact on initial page load
+- When polling is enabled, new notifications trigger a toast notification
