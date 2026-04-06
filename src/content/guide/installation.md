@@ -5,95 +5,134 @@ order: 2
 
 # Installation
 
-Get Inertia Studio running in your Laravel + Inertia application.
+Two commands. Works on any Laravel project — with or without Inertia already installed.
 
-## Requirements
-
-- PHP 8.4+
-- Laravel 12 or 13
-- Inertia.js v3 (React, Vue, or Svelte)
-- Node.js 20+
-- Tailwind CSS 4
-
-## Install the packages
+## Quick Start
 
 ```bash
 composer require inertia-studio/laravel-adapter
-```
-
-Install the frontend package — the same `@inertia-studio/ui` package works with all three frameworks:
-
-```bash
-npm install @inertia-studio/ui
-```
-
-## Run the installer
-
-```bash
 php artisan studio:install
 ```
 
-The installer auto-detects your frontend framework from `package.json` (`@inertiajs/react`, `@inertiajs/vue3`, or `@inertiajs/svelte`) and configures accordingly. To specify explicitly:
+That's it. The installer handles everything:
+
+1. **Detects your frontend framework** — or asks you to choose (React, Vue, or Svelte)
+2. **Installs missing dependencies** — Inertia, React/Vue/Svelte, Vite plugins, `@inertia-studio/ui`
+3. **Configures Vite** — adds `react()` and `studio()` plugins
+4. **Creates the app entry** — `resources/js/app.tsx` with the Studio page resolver
+5. **Sets up Tailwind** — adds Studio source paths and design tokens
+6. **Scaffolds the Admin panel** — `app/Studio/Admin/Admin.php`
+7. **Publishes assets** — config file and Studio logo
+
+Then build and visit `/admin`:
 
 ```bash
-php artisan studio:install --framework=react
+npm run build
+php artisan serve
+```
+
+## Starting Points
+
+The installer works with three scenarios:
+
+### Bare Laravel (no Inertia, no React)
+
+```bash
+laravel new myapp
+cd myapp
+composer require inertia-studio/laravel-adapter
+php artisan studio:install
+```
+
+The installer will ask which framework you want, then install Inertia + React/Vue/Svelte + all Vite plugins automatically.
+
+### Laravel + React Starter Kit
+
+```bash
+laravel new myapp --react
+cd myapp
+composer require inertia-studio/laravel-adapter
+php artisan studio:install
+```
+
+The installer detects React is already installed, adds Studio on top — patches `app.tsx` and `vite.config.ts`.
+
+### Explicit Framework Choice
+
+```bash
 php artisan studio:install --framework=vue
 php artisan studio:install --framework=svelte
 ```
 
-This will:
+## What Gets Configured
 
-1. Publish the config file (`config/studio.php`)
-2. Create the `app/Studio/` directory
-3. Generate a default Admin panel at `app/Studio/Admin/Admin.php`
-4. Add the Tailwind preset to your CSS
-5. Register the Inertia page resolver
+### Vite (`vite.config.ts`)
 
-## Tailwind Configuration
-
-Add the Studio source paths to your `resources/css/app.css`:
-
-```css
-@import 'tailwindcss';
-@source '../../vendor/inertia-studio/laravel-adapter';
-@source '../../node_modules/@inertia-studio/ui';
-```
-
-## Vite Configuration
-
-Register the Studio Inertia page resolver in your Vite config:
+The installer adds the framework plugin and Studio plugin:
 
 ```typescript
+import react from '@vitejs/plugin-react';
 import studio from '@inertia-studio/ui/vite';
 
 export default defineConfig({
     plugins: [
         laravel({ input: ['resources/css/app.css', 'resources/js/app.tsx'] }),
-        // your framework plugin (react(), vue(), svelte())
+        react(),
         studio(),
+        tailwindcss(),
     ],
 });
 ```
 
-## Framework Configuration
+### App Entry (`resources/js/app.tsx`)
 
-The detected framework is stored in `config/studio.php`:
+The page resolver handles both Studio pages and your app pages:
+
+```tsx
+import { resolveStudioPage } from '@inertia-studio/ui/vite';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { createInertiaApp } from '@inertiajs/react';
+
+const appPages = import.meta.glob('./pages/**/*.tsx');
+
+createInertiaApp({
+    resolve: (name) => resolveStudioPage(name)
+        ?? resolvePageComponent(`./pages/${name}.tsx`, appPages),
+});
+```
+
+### Tailwind CSS (`resources/css/app.css`)
+
+Studio's design tokens and source paths are added:
+
+```css
+@import 'tailwindcss';
+@import '@inertia-studio/ui/studio.css';
+
+@source '../../vendor/inertia-studio/laravel-adapter';
+@source '../../node_modules/@inertia-studio/ui';
+```
+
+### Panel (`app/Studio/Admin/Admin.php`)
+
+A default panel with the Studio logo:
 
 ```php
-'framework' => 'react', // 'react' | 'vue' | 'svelte'
+class Admin extends Panel
+{
+    protected string $path = '/admin';
+    protected ?string $brandIcon = '/vendor/studio/logo.svg';
+}
 ```
 
-This determines which component format is used when publishing components via `studio:publish`.
+## Requirements
 
-## Verify
+- PHP 8.4+
+- Laravel 12 or 13
+- Node.js 20+
+- Tailwind CSS 4
 
-Start the dev server and visit `/admin`:
-
-```bash
-composer run dev
-```
-
-You should see the Studio dashboard with a sidebar and welcome message.
+Inertia.js, React/Vue/Svelte, and `@inertia-studio/ui` are installed automatically by the installer if missing.
 
 ## Next Steps
 
